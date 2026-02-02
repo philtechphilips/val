@@ -8,7 +8,7 @@ interface MessageSequenceProps {
 }
 
 const messages = [
-    "Hey [Her Name]...", // Replace this with her actual name!
+    "Hey Oyinkansiolami...", // Replace this with her actual name!
     "Every moment with you means more than I can explain.",
     "So I wanted to ask you something special...",
 ];
