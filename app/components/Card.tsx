@@ -7,7 +7,11 @@ import FinalCTA from "./FinalCTA";
 import { cn } from "@/lib/utils";
 import { Heart } from "lucide-react";
 
-export default function Card() {
+interface CardProps {
+    onAccept: () => void;
+}
+
+export default function Card({ onAccept }: CardProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [showMessages, setShowMessages] = useState(false);
     const [messagesFinished, setMessagesFinished] = useState(false);
@@ -32,7 +36,7 @@ export default function Card() {
                     {showMessages && !messagesFinished && (
                         <MessageSequence onComplete={() => setMessagesFinished(true)} />
                     )}
-                    {messagesFinished && <FinalCTA />}
+                    {messagesFinished && <FinalCTA onAccept={onAccept} />}
                 </div>
 
                 {/* Animate the cover OFF when isOpen */}

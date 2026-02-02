@@ -2,14 +2,47 @@
 
 import { motion } from "framer-motion";
 import confetti from "canvas-confetti";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-export default function FinalCTA() {
+interface FinalCTAProps {
+    onAccept: () => void;
+}
+
+export default function FinalCTA({ onAccept }: FinalCTAProps) {
     const [accepted, setAccepted] = useState(false);
+    const [timeLeft, setTimeLeft] = useState<{ days: number, hours: number, minutes: number, seconds: number } | null>(null);
+
+    // Countdown logic
+    useEffect(() => {
+        if (!accepted) return;
+
+        const targetDate = new Date("2026-02-14T00:00:00").getTime();
+
+        const timer = setInterval(() => {
+            const now = new Date().getTime();
+            const distance = targetDate - now;
+
+            if (distance < 0) {
+                clearInterval(timer);
+                setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+                return;
+            }
+
+            setTimeLeft({
+                days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+                hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+                minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+                seconds: Math.floor((distance % (1000 * 60)) / 1000)
+            });
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [accepted]);
 
     const handleAccept = () => {
         setAccepted(true);
         triggerConfetti();
+        onAccept();
     };
 
     const triggerConfetti = () => {
@@ -46,12 +79,21 @@ export default function FinalCTA() {
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.8 }}
-                className="text-center p-8 bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl mt-8 border-2 border-pink-200"
+                className="text-center p-8 bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl mt-8 border-2 border-pink-200 w-full"
             >
-                <h2 className="text-4xl md:text-5xl font-bold font-cursive text-rose-600 mb-4 animate-pulse">
+                <h2 className="text-3xl md:text-5xl font-bold font-cursive text-rose-600 mb-4 animate-pulse">
                     You just made my heart very happy 💕
                 </h2>
-                <p className="text-lg text-rose-800">I can&apos;t wait to celebrate with you!</p>
+                <p className="text-lg text-rose-800 mb-6 font-medium">The countdown to your special surprise has begun...</p>
+
+                {timeLeft && (
+                    <div className="grid grid-cols-4 gap-2 md:gap-4 text-rose-900">
+                        <CountdownUnit value={timeLeft.days} label="Days" />
+                        <CountdownUnit value={timeLeft.hours} label="Hours" />
+                        <CountdownUnit value={timeLeft.minutes} label="Mins" />
+                        <CountdownUnit value={timeLeft.seconds} label="Secs" />
+                    </div>
+                )}
             </motion.div>
         );
     }
@@ -87,5 +129,14 @@ export default function FinalCTA() {
                 </motion.button>
             </div>
         </motion.div>
+    );
+}
+
+function CountdownUnit({ value, label }: { value: number, label: string }) {
+    return (
+        <div className="flex flex-col items-center bg-white/50 p-2 rounded-lg">
+            <span className="text-2xl md:text-3xl font-bold text-rose-600">{value}</span>
+            <span className="text-xs md:text-sm text-rose-400 uppercase tracking-wider">{label}</span>
+        </div>
     );
 }
